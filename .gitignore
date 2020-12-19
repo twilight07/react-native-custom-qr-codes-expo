@@ -1,6 +1,33 @@
+.DS_Store
+.cache
+.vscode
+.idea
+.expo
+.gradle
+.project
+.settings
+.history
 
-# Logs
+local.properties
+
+/coverage/
+/types/
+/dist/
+
+node_modules/
+web-build/
+web-report/
+
+xcuserdata
+generated
+build
+
+npm-debug.*
+
 *.log
-
-# Dependency directory
-node_modules
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
