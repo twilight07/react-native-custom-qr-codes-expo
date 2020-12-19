@@ -3,11 +3,18 @@
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
-    "strict": true,
+    "strict": false,
     "skipLibCheck": true,
     "declaration": true,
     "pretty": true,
     "newLine": "lf",
-    "outDir": "dist"
-  }
+    "outDir": "dist",
+    "jsx": "react-native",
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "src"
+  ]
 }
