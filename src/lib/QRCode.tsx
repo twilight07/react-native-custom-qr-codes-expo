@@ -175,7 +175,6 @@ export default class QRCode extends PureComponent {
             </Defs>
             <Rect
               clipPath="url(#clip)"
-              fill="white"
               x={0}
               y={0}
               height="100%"
@@ -196,7 +195,6 @@ export default class QRCode extends PureComponent {
             </Defs>
             <Rect
               clipPath="url(#clip)"
-              fill="white"
               x={0}
               y={0}
               height="100%"
