@@ -1,1 +1,1 @@
-export { default as QRCode } from './lib/QRCode';
+export { default as QRCode } from "./lib/QRCode";

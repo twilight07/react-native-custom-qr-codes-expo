@@ -12,15 +12,15 @@ import { Rect } from "react-native-svg";
 
 //Returns an SVG Element for a piece of the 'ninja' codeStyle
 export const drawNinjaPiece = (x, y, modules, pieceProperties, props) => {
-  var orientation = pieceProperties.orientation;
-  var pieceType = pieceProperties.pieceType;
-  var width = props.size;
-  var height = props.size;
-  var length = modules.length;
-  var xsize = width / (length + 2 * props.padding);
-  var ysize = height / (length + 2 * props.padding);
-  var px = x * xsize + props.padding * xsize;
-  var py = y * ysize + props.padding * ysize;
+  const orientation = pieceProperties.orientation;
+  const pieceType = pieceProperties.pieceType;
+  const width = props.size;
+  const height = props.size;
+  const length = modules.length;
+  const xsize = width / (length + 2 * props.padding);
+  const ysize = height / (length + 2 * props.padding);
+  const px = x * xsize + props.padding * xsize;
+  const py = y * ysize + props.padding * ysize;
 
   // !!!! These aren't the proper paths yet
   switch (pieceType) {

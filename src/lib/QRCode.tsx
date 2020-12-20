@@ -10,17 +10,11 @@ This is a Customisable QR Code Component for React Native Applications.
 
 //-----------------------------Imports-----------------------------------
 import React, { PureComponent } from "react";
-import { View, Image, Text, Button } from "react-native";
+import { View, Image } from "react-native";
 import PropTypes from "prop-types";
-import { generateQRCode } from "./QRCodeGenerator.js";
+import { generateQRCode } from "./QRCodeGenerator";
 import { drawPiece } from "./styles";
-import Svg, {
-  Rect,
-  Defs,
-  ClipPath,
-  LinearGradient,
-  Stop,
-} from "react-native-svg";
+import Svg, { Rect, Defs, ClipPath, LinearGradient, Stop } from "react-native-svg";
 
 //-----------------------------Component---------------------------------
 export default class QRCode extends PureComponent {
@@ -37,14 +31,7 @@ export default class QRCode extends PureComponent {
     backgroundColor: PropTypes.string,
     innerEyeStyle: PropTypes.oneOf(["square", "circle", "diamond"]),
     outerEyeStyle: PropTypes.oneOf(["square", "circle", "diamond"]),
-    codeStyle: PropTypes.oneOf([
-      "square",
-      "circle",
-      "diamond",
-      "dot",
-      "ninja",
-      "sharp",
-    ]),
+    codeStyle: PropTypes.oneOf(["square", "circle", "diamond", "dot", "ninja", "sharp"]),
     logo: Image.propTypes.source,
     backgroundImage: Image.propTypes.source,
     logoSize: PropTypes.number,
@@ -69,38 +56,32 @@ export default class QRCode extends PureComponent {
 
   //Returns an array of SVG Elements that represent the pieces of the QR Code
   getPieces() {
-    var qr = generateQRCode(this.props);
+    const qr = generateQRCode(this.props);
 
-    var modules = qr.qrcode.modules;
+    const modules = qr.qrcode.modules;
 
-    var size = this.props.size;
-    var length = modules.length;
-    var xsize = size / (length + 2 * this.props.padding);
-    var ysize = size / (length + 2 * this.props.padding);
-    var logoX = this.props.size / 2 - this.props.logoSize / 2;
-    var logoY = this.props.size / 2 - this.props.logoSize / 2;
-    var logoSize = this.props.logoSize;
+    const size = this.props.size;
+    const length = modules.length;
+    const xsize = size / (length + 2 * this.props.padding);
+    const ysize = size / (length + 2 * this.props.padding);
+    const logoX = this.props.size / 2 - this.props.logoSize / 2;
+    const logoY = this.props.size / 2 - this.props.logoSize / 2;
+    const logoSize = this.props.logoSize;
 
-    var pieces = [];
-    var nonPieces = [];
+    const pieces = [];
+    const nonPieces = [];
 
     //Add the SVG element of each piece in the body of the QR Code
-    for (var y = 0; y < length; y++) {
-      for (var x = 0; x < length; x++) {
-        var module = modules[x][y];
-        var px = x * xsize + this.props.padding * xsize;
-        var py = y * ysize + this.props.padding * ysize;
+    for (let y = 0; y < length; y++) {
+      for (let x = 0; x < length; x++) {
+        const module = modules[x][y];
+        const px = x * xsize + this.props.padding * xsize;
+        const py = y * ysize + this.props.padding * ysize;
 
         //TODO: Add function to compute if pieces overlap with circular logos (more complex. Must see if tl or br is inside the radius from the centre of the circle (pythagoras theorem?))
-        var overlapsWithLogo =
-          (px > logoX &&
-            px < logoX + logoSize &&
-            py > logoY &&
-            py < logoY + logoSize) || //Piece's top left is inside the logo area
-          (px + xsize > logoX &&
-            px + xsize < logoX + logoSize &&
-            py + ysize > logoY &&
-            py + ysize < logoY + logoSize); //Piece's bottom right is inside the logo area
+        const overlapsWithLogo =
+          (px > logoX && px < logoX + logoSize && py > logoY && py < logoY + logoSize) || //Piece's top left is inside the logo area
+          (px + xsize > logoX && px + xsize < logoX + logoSize && py + ysize > logoY && py + ysize < logoY + logoSize); //Piece's bottom right is inside the logo area
 
         if (!this.props.logo || (this.props.logo && !overlapsWithLogo)) {
           if (module) {
@@ -136,14 +117,7 @@ export default class QRCode extends PureComponent {
             <Defs>
               <ClipPath id="clip">{nonPieces}</ClipPath>
             </Defs>
-            <Rect
-              clipPath="url(#clip)"
-              fill="white"
-              x={0}
-              y={0}
-              height="100%"
-              width="100%"
-            />
+            <Rect clipPath="url(#clip)" fill="white" x={0} y={0} height="100%" width="100%" />
           </Svg>
         </View>
       );
@@ -161,26 +135,11 @@ export default class QRCode extends PureComponent {
                 x2={this.props.gradientDirection[2]}
                 y2={this.props.gradientDirection[3]}
               >
-                <Stop
-                  offset="0"
-                  stopColor={this.props.linearGradient[0]}
-                  stopOpacity="1"
-                />
-                <Stop
-                  offset="1"
-                  stopColor={this.props.linearGradient[1]}
-                  stopOpacity="1"
-                />
+                <Stop offset="0" stopColor={this.props.linearGradient[0]} stopOpacity="1" />
+                <Stop offset="1" stopColor={this.props.linearGradient[1]} stopOpacity="1" />
               </LinearGradient>
             </Defs>
-            <Rect
-              clipPath="url(#clip)"
-              x={0}
-              y={0}
-              height="100%"
-              width="100%"
-              fill="url(#grad)"
-            />
+            <Rect clipPath="url(#clip)" x={0} y={0} height="100%" width="100%" fill="url(#grad)" />
           </Svg>
           {this.displayLogo()}
         </View>
@@ -193,14 +152,7 @@ export default class QRCode extends PureComponent {
             <Defs>
               <ClipPath id="clip">{pieces}</ClipPath>
             </Defs>
-            <Rect
-              clipPath="url(#clip)"
-              x={0}
-              y={0}
-              height="100%"
-              width="100%"
-              fill={this.props.color}
-            />
+            <Rect clipPath="url(#clip)" x={0} y={0} height="100%" width="100%" fill={this.props.color} />
           </Svg>
           {this.displayLogo()}
         </View>
@@ -239,23 +191,18 @@ export default class QRCode extends PureComponent {
 
   // Returns an object with orientation and pieceType representation of the piece type. (See https://github.com/mpaolino/qrlib/tree/master/qrlib/static)
   getPieceProperties(x, y, modules) {
-    var mod_matrix: any = {};
+    const mod_matrix: any = {};
     mod_matrix.topLeft = x != 0 && y != 0 && modules[x - 1][y - 1];
     mod_matrix.top = y != 0 && modules[x][y - 1];
-    mod_matrix.topRight =
-      x != modules.length - 1 && y != 0 && modules[x + 1][y - 1];
+    mod_matrix.topRight = x != modules.length - 1 && y != 0 && modules[x + 1][y - 1];
     mod_matrix.left = x != 0 && modules[x - 1][y];
     mod_matrix.right = x != modules.length - 1 && modules[x + 1][y];
-    mod_matrix.bottomLeft =
-      x != 0 && y != modules.length - 1 && modules[x - 1][y + 1];
+    mod_matrix.bottomLeft = x != 0 && y != modules.length - 1 && modules[x - 1][y + 1];
     mod_matrix.bottom = y != modules.length - 1 && modules[x][y + 1];
-    mod_matrix.bottomRight =
-      x != modules.length - 1 &&
-      y != modules.length - 1 &&
-      modules[x + 1][y + 1];
+    mod_matrix.bottomRight = x != modules.length - 1 && y != modules.length - 1 && modules[x + 1][y + 1];
 
     //  (surroundingCount holds the number of pieces above or to the side of this piece)
-    var surroundingCount = 0;
+    let surroundingCount = 0;
     if (mod_matrix.top) {
       surroundingCount++;
     }
@@ -269,7 +216,7 @@ export default class QRCode extends PureComponent {
       surroundingCount++;
     }
 
-    var pieceProperties: any = {};
+    const pieceProperties: any = {};
     var orientation = 0;
 
     //Determine what the piece properties are from its surrounding pieces.
@@ -292,10 +239,7 @@ export default class QRCode extends PureComponent {
         pieceProperties.orientation = 0;
         return pieceProperties;
       case 2:
-        if (
-          (mod_matrix.top && mod_matrix.bottom) ||
-          (mod_matrix.left && mod_matrix.right)
-        ) {
+        if ((mod_matrix.top && mod_matrix.bottom) || (mod_matrix.left && mod_matrix.right)) {
           var orientation = mod_matrix.top && mod_matrix.bottom ? 0 : 90;
           pieceProperties.pieceType = "1b3b";
           pieceProperties.orientation = orientation;
@@ -308,15 +252,11 @@ export default class QRCode extends PureComponent {
             return pieceProperties;
           } else if (mod_matrix.right && mod_matrix.bottom) {
             pieceProperties.orientation = 180;
-            pieceProperties.pieceType = mod_matrix.bottomRight
-              ? "2a1b1a"
-              : "2a1b";
+            pieceProperties.pieceType = mod_matrix.bottomRight ? "2a1b1a" : "2a1b";
             return pieceProperties;
           } else if (mod_matrix.left && mod_matrix.bottom) {
             pieceProperties.orientation = 270;
-            pieceProperties.pieceType = mod_matrix.bottomLeft
-              ? "2a1b1a"
-              : "2a1b";
+            pieceProperties.pieceType = mod_matrix.bottomLeft ? "2a1b1a" : "2a1b";
             return pieceProperties;
           } else {
             pieceProperties.pieceType = mod_matrix.topLeft ? "2a1b1a" : "2a1b";
