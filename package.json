@@ -37,7 +37,9 @@
     "fix": "run-s fix:lint fix:format",
     "fix:lint": "eslint --fix ./src/**/*.{ts,tsx}",
     "fix:format": "prettier --write ./src/**/*.{ts,tsx}",
-    "prepublishOnly": "run-s fix:lint fix:format build"
+    "prepublishOnly": "run-s fix:lint fix:format build",
+    "pack": "npm pack",
+    "localpack": "run-s fix pack"
   },
   "dependencies": {
     "prop-types": "^15.7.2"
