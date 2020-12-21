@@ -29,12 +29,12 @@
 //---------------------------------------------------------------------
 
 //Returns an SVG of a QR Code created using the properties object
-export function generateQRCode(props) {
+export function generateQRCode(props: any) {
   const myQRCode = new QRCode(props);
   return myQRCode;
 }
 
-function QR8bitByte(data) {
+function QR8bitByte(data: any) {
   this.mode = QRMode.MODE_8BIT_BYTE;
   this.data = data;
   this.parsedData = [];
@@ -73,17 +73,17 @@ function QR8bitByte(data) {
 }
 
 QR8bitByte.prototype = {
-  getLength: function (buffer) {
+  getLength: function () {
     return this.parsedData.length;
   },
-  write: function (buffer) {
+  write: function (buffer: { put: (arg0: any, arg1: number) => void }) {
     for (let i = 0, l = this.parsedData.length; i < l; i++) {
       buffer.put(this.parsedData[i], 8);
     }
   },
 };
 
-function QRCodeModel(typeNumber, errorCorrectLevel) {
+function QRCodeModel(typeNumber: number, errorCorrectLevel: number) {
   this.typeNumber = typeNumber;
   this.errorCorrectLevel = errorCorrectLevel;
   this.modules = null;
@@ -93,12 +93,12 @@ function QRCodeModel(typeNumber, errorCorrectLevel) {
 }
 
 QRCodeModel.prototype = {
-  addData: function (data) {
+  addData: function (data: any) {
     const newData = new QR8bitByte(data);
     this.dataList.push(newData);
     this.dataCache = null;
   },
-  isDark: function (row, col) {
+  isDark: function (row: string | number, col: string | number) {
     if (row < 0 || this.moduleCount <= row || col < 0 || this.moduleCount <= col) {
       throw new Error(row + "," + col);
     }
@@ -110,7 +110,7 @@ QRCodeModel.prototype = {
   make: function () {
     this.makeImpl(false, this.getBestMaskPattern());
   },
-  makeImpl: function (test, maskPattern) {
+  makeImpl: function (test: any, maskPattern: any) {
     this.moduleCount = this.typeNumber * 4 + 17;
     this.modules = new Array(this.moduleCount);
     for (let row = 0; row < this.moduleCount; row++) {
@@ -133,7 +133,7 @@ QRCodeModel.prototype = {
     }
     this.mapData(this.dataCache, maskPattern);
   },
-  setupPositionProbePattern: function (row, col) {
+  setupPositionProbePattern: function (row: number, col: number) {
     for (let r = -1; r <= 7; r++) {
       if (row + r <= -1 || this.moduleCount <= row + r) continue;
       for (let c = -1; c <= 7; c++) {
@@ -163,7 +163,11 @@ QRCodeModel.prototype = {
     }
     return pattern;
   },
-  createMovieClip: function (target_mc, instance_name, depth) {
+  createMovieClip: function (
+    target_mc: { createEmptyMovieClip: (arg0: any, arg1: any) => any },
+    instance_name: any,
+    depth: any
+  ) {
     const qr_mc = target_mc.createEmptyMovieClip(instance_name, depth);
     const cs = 1;
     this.make();
@@ -219,22 +223,22 @@ QRCodeModel.prototype = {
       }
     }
   },
-  setupTypeNumber: function (test) {
+  setupTypeNumber: function (test: any) {
     const bits = QRUtil.getBCHTypeNumber(this.typeNumber);
-    for (var i = 0; i < 18; i++) {
-      var mod = !test && ((bits >> i) & 1) == 1;
+    for (let i = 0; i < 18; i++) {
+      const mod = !test && ((bits >> i) & 1) == 1;
       this.modules[Math.floor(i / 3)][(i % 3) + this.moduleCount - 8 - 3] = mod;
     }
-    for (var i = 0; i < 18; i++) {
-      var mod = !test && ((bits >> i) & 1) == 1;
+    for (let i = 0; i < 18; i++) {
+      const mod = !test && ((bits >> i) & 1) == 1;
       this.modules[(i % 3) + this.moduleCount - 8 - 3][Math.floor(i / 3)] = mod;
     }
   },
-  setupTypeInfo: function (test, maskPattern) {
+  setupTypeInfo: function (test: any, maskPattern: number) {
     const data = (this.errorCorrectLevel << 3) | maskPattern;
     const bits = QRUtil.getBCHTypeInfo(data);
-    for (var i = 0; i < 15; i++) {
-      var mod = !test && ((bits >> i) & 1) == 1;
+    for (let i = 0; i < 15; i++) {
+      const mod = !test && ((bits >> i) & 1) == 1;
       if (i < 6) {
         this.modules[i][8] = mod;
       } else if (i < 8) {
@@ -243,8 +247,8 @@ QRCodeModel.prototype = {
         this.modules[this.moduleCount - 15 + i][8] = mod;
       }
     }
-    for (var i = 0; i < 15; i++) {
-      var mod = !test && ((bits >> i) & 1) == 1;
+    for (let i = 0; i < 15; i++) {
+      const mod = !test && ((bits >> i) & 1) == 1;
       if (i < 8) {
         this.modules[8][this.moduleCount - i - 1] = mod;
       } else if (i < 9) {
@@ -255,7 +259,7 @@ QRCodeModel.prototype = {
     }
     this.modules[this.moduleCount - 8][8] = !test;
   },
-  mapData: function (data, maskPattern) {
+  mapData: function (data: string | any[], maskPattern: any) {
     let inc = -1;
     let row = this.moduleCount - 1;
     let bitIndex = 7;
@@ -293,17 +297,17 @@ QRCodeModel.prototype = {
 };
 QRCodeModel.PAD0 = 0xec;
 QRCodeModel.PAD1 = 0x11;
-QRCodeModel.createData = function (typeNumber, errorCorrectLevel, dataList) {
+QRCodeModel.createData = function (typeNumber: any, errorCorrectLevel: any, dataList: string | any[]) {
   const rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
   const buffer = new QRBitBuffer();
-  for (var i = 0; i < dataList.length; i++) {
+  for (let i = 0; i < dataList.length; i++) {
     const data = dataList[i];
     buffer.put(data.mode, 4);
     buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber));
     data.write(buffer);
   }
   let totalDataCount = 0;
-  for (var i = 0; i < rsBlocks.length; i++) {
+  for (let i = 0; i < rsBlocks.length; i++) {
     totalDataCount += rsBlocks[i].dataCount;
   }
   if (buffer.getLengthInBits() > totalDataCount * 8) {
@@ -327,19 +331,19 @@ QRCodeModel.createData = function (typeNumber, errorCorrectLevel, dataList) {
   }
   return QRCodeModel.createBytes(buffer, rsBlocks);
 };
-QRCodeModel.createBytes = function (buffer, rsBlocks) {
+QRCodeModel.createBytes = function (buffer: { buffer: number[] }, rsBlocks: string | any[]) {
   let offset = 0;
   let maxDcCount = 0;
   let maxEcCount = 0;
   const dcdata = new Array(rsBlocks.length);
   const ecdata = new Array(rsBlocks.length);
-  for (var r = 0; r < rsBlocks.length; r++) {
+  for (let r = 0; r < rsBlocks.length; r++) {
     const dcCount = rsBlocks[r].dataCount;
     const ecCount = rsBlocks[r].totalCount - dcCount;
     maxDcCount = Math.max(maxDcCount, dcCount);
     maxEcCount = Math.max(maxEcCount, ecCount);
     dcdata[r] = new Array(dcCount);
-    for (var i = 0; i < dcdata[r].length; i++) {
+    for (let i = 0; i < dcdata[r].length; i++) {
       dcdata[r][i] = 0xff & buffer.buffer[i + offset];
     }
     offset += dcCount;
@@ -347,26 +351,26 @@ QRCodeModel.createBytes = function (buffer, rsBlocks) {
     const rawPoly = new QRPolynomial(dcdata[r], rsPoly.getLength() - 1);
     const modPoly = rawPoly.mod(rsPoly);
     ecdata[r] = new Array(rsPoly.getLength() - 1);
-    for (var i = 0; i < ecdata[r].length; i++) {
+    for (let i = 0; i < ecdata[r].length; i++) {
       const modIndex = i + modPoly.getLength() - ecdata[r].length;
       ecdata[r][i] = modIndex >= 0 ? modPoly.get(modIndex) : 0;
     }
   }
   let totalCodeCount = 0;
-  for (var i = 0; i < rsBlocks.length; i++) {
+  for (let i = 0; i < rsBlocks.length; i++) {
     totalCodeCount += rsBlocks[i].totalCount;
   }
   const data = new Array(totalCodeCount);
   let index = 0;
-  for (var i = 0; i < maxDcCount; i++) {
-    for (var r = 0; r < rsBlocks.length; r++) {
+  for (let i = 0; i < maxDcCount; i++) {
+    for (let r = 0; r < rsBlocks.length; r++) {
       if (i < dcdata[r].length) {
         data[index++] = dcdata[r][i];
       }
     }
   }
-  for (var i = 0; i < maxEcCount; i++) {
-    for (var r = 0; r < rsBlocks.length; r++) {
+  for (let i = 0; i < maxEcCount; i++) {
+    for (let r = 0; r < rsBlocks.length; r++) {
       if (i < ecdata[r].length) {
         data[index++] = ecdata[r][i];
       }
@@ -374,12 +378,14 @@ QRCodeModel.createBytes = function (buffer, rsBlocks) {
   }
   return data;
 };
-var QRMode = {
+const QRMode = {
   MODE_NUMBER: 1 << 0,
   MODE_ALPHA_NUM: 1 << 1,
   MODE_8BIT_BYTE: 1 << 2,
   MODE_KANJI: 1 << 3,
-};
+} as const;
+type QRMode = typeof QRMode[keyof typeof QRMode];
+
 const QRErrorCorrectLevel = { L: 1, M: 0, Q: 3, H: 2 };
 const QRMaskPattern = {
   PATTERN000: 0,
@@ -390,8 +396,9 @@ const QRMaskPattern = {
   PATTERN101: 5,
   PATTERN110: 6,
   PATTERN111: 7,
-};
-var QRUtil = {
+} as const;
+export type QRMaskPattern = typeof QRMaskPattern[keyof typeof QRMaskPattern];
+const QRUtil = {
   PATTERN_POSITION_TABLE: [
     [],
     [6, 18],
@@ -437,21 +444,21 @@ var QRUtil = {
   G15: (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
   G18: (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
   G15_MASK: (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1),
-  getBCHTypeInfo: function (data) {
+  getBCHTypeInfo: function (data: number) {
     let d = data << 10;
     while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
       d ^= QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15));
     }
     return ((data << 10) | d) ^ QRUtil.G15_MASK;
   },
-  getBCHTypeNumber: function (data) {
+  getBCHTypeNumber: function (data: number) {
     let d = data << 12;
     while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
       d ^= QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18));
     }
     return (data << 12) | d;
   },
-  getBCHDigit: function (data) {
+  getBCHDigit: function (data: number) {
     let digit = 0;
     while (data != 0) {
       digit++;
@@ -459,10 +466,10 @@ var QRUtil = {
     }
     return digit;
   },
-  getPatternPosition: function (typeNumber) {
+  getPatternPosition: function (typeNumber: number) {
     return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
   },
-  getMask: function (maskPattern, i, j) {
+  getMask: function (maskPattern: number, i: number, j: number) {
     switch (maskPattern) {
       case QRMaskPattern.PATTERN000:
         return (i + j) % 2 == 0;
@@ -484,14 +491,14 @@ var QRUtil = {
         throw new Error("bad maskPattern:" + maskPattern);
     }
   },
-  getErrorCorrectPolynomial: function (errorCorrectLength) {
+  getErrorCorrectPolynomial: function (errorCorrectLength: number) {
     let a = new QRPolynomial([1], 0);
     for (let i = 0; i < errorCorrectLength; i++) {
       a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0));
     }
     return a;
   },
-  getLengthInBits: function (mode, type) {
+  getLengthInBits: function (mode: number, type: string | number) {
     if (1 <= type && type < 10) {
       switch (mode) {
         case QRMode.MODE_NUMBER:
@@ -535,11 +542,11 @@ var QRUtil = {
       throw new Error("type:" + type);
     }
   },
-  getLostPoint: function (qrCode) {
+  getLostPoint: function (qrCode: { getModuleCount: () => any; isDark: (arg0: number, arg1: number) => any }) {
     const moduleCount = qrCode.getModuleCount();
     let lostPoint = 0;
-    for (var row = 0; row < moduleCount; row++) {
-      for (var col = 0; col < moduleCount; col++) {
+    for (let row = 0; row < moduleCount; row++) {
+      for (let col = 0; col < moduleCount; col++) {
         let sameCount = 0;
         const dark = qrCode.isDark(row, col);
         for (let r = -1; r <= 1; r++) {
@@ -563,8 +570,8 @@ var QRUtil = {
         }
       }
     }
-    for (var row = 0; row < moduleCount - 1; row++) {
-      for (var col = 0; col < moduleCount - 1; col++) {
+    for (let row = 0; row < moduleCount - 1; row++) {
+      for (let col = 0; col < moduleCount - 1; col++) {
         let count = 0;
         if (qrCode.isDark(row, col)) count++;
         if (qrCode.isDark(row + 1, col)) count++;
@@ -575,8 +582,8 @@ var QRUtil = {
         }
       }
     }
-    for (var row = 0; row < moduleCount; row++) {
-      for (var col = 0; col < moduleCount - 6; col++) {
+    for (let row = 0; row < moduleCount; row++) {
+      for (let col = 0; col < moduleCount - 6; col++) {
         if (
           qrCode.isDark(row, col) &&
           !qrCode.isDark(row, col + 1) &&
@@ -590,8 +597,8 @@ var QRUtil = {
         }
       }
     }
-    for (var col = 0; col < moduleCount; col++) {
-      for (var row = 0; row < moduleCount - 6; row++) {
+    for (let col = 0; col < moduleCount; col++) {
+      for (let row = 0; row < moduleCount - 6; row++) {
         if (
           qrCode.isDark(row, col) &&
           !qrCode.isDark(row + 1, col) &&
@@ -606,8 +613,8 @@ var QRUtil = {
       }
     }
     let darkCount = 0;
-    for (var col = 0; col < moduleCount; col++) {
-      for (var row = 0; row < moduleCount; row++) {
+    for (let col = 0; col < moduleCount; col++) {
+      for (let row = 0; row < moduleCount; row++) {
         if (qrCode.isDark(row, col)) {
           darkCount++;
         }
@@ -618,14 +625,14 @@ var QRUtil = {
     return lostPoint;
   },
 };
-var QRMath = {
-  glog: function (n) {
+const QRMath = {
+  glog: function (n: string | number) {
     if (n < 1) {
       throw new Error("glog(" + n + ")");
     }
     return QRMath.LOG_TABLE[n];
   },
-  gexp: function (n) {
+  gexp: function (n: number) {
     while (n < 0) {
       n += 255;
     }
@@ -637,17 +644,17 @@ var QRMath = {
   EXP_TABLE: new Array(256),
   LOG_TABLE: new Array(256),
 };
-for (var i = 0; i < 8; i++) {
+for (let i = 0; i < 8; i++) {
   QRMath.EXP_TABLE[i] = 1 << i;
 }
-for (var i = 8; i < 256; i++) {
+for (let i = 8; i < 256; i++) {
   QRMath.EXP_TABLE[i] =
     QRMath.EXP_TABLE[i - 4] ^ QRMath.EXP_TABLE[i - 5] ^ QRMath.EXP_TABLE[i - 6] ^ QRMath.EXP_TABLE[i - 8];
 }
-for (var i = 0; i < 255; i++) {
+for (let i = 0; i < 255; i++) {
   QRMath.LOG_TABLE[QRMath.EXP_TABLE[i]] = i;
 }
-function QRPolynomial(num, shift?) {
+function QRPolynomial(num: number[], shift: number) {
   if (num.length == undefined) {
     throw new Error(num.length + "/" + shift);
   }
@@ -661,13 +668,13 @@ function QRPolynomial(num, shift?) {
   }
 }
 QRPolynomial.prototype = {
-  get: function (index) {
+  get: function (index: string | number) {
     return this.num[index];
   },
   getLength: function () {
     return this.num.length;
   },
-  multiply: function (e) {
+  multiply: function (e: { getLength: () => number; get: (arg0: number) => any }) {
     const num = new Array(this.getLength() + e.getLength() - 1);
     for (let i = 0; i < this.getLength(); i++) {
       for (let j = 0; j < e.getLength(); j++) {
@@ -676,22 +683,22 @@ QRPolynomial.prototype = {
     }
     return new QRPolynomial(num, 0);
   },
-  mod: function (e) {
+  mod: function (e: { getLength: () => number; get: (arg0: number) => any }) {
     if (this.getLength() - e.getLength() < 0) {
       return this;
     }
     const ratio = QRMath.glog(this.get(0)) - QRMath.glog(e.get(0));
     const num = new Array(this.getLength());
-    for (var i = 0; i < this.getLength(); i++) {
+    for (let i = 0; i < this.getLength(); i++) {
       num[i] = this.get(i);
     }
-    for (var i = 0; i < e.getLength(); i++) {
+    for (let i = 0; i < e.getLength(); i++) {
       num[i] ^= QRMath.gexp(QRMath.glog(e.get(i)) + ratio);
     }
     return new QRPolynomial(num, 0).mod(e);
   },
 };
-function QRRSBlock(totalCount, dataCount?) {
+function QRRSBlock(totalCount: number, dataCount?: number) {
   this.totalCount = totalCount;
   this.dataCount = dataCount;
 }
@@ -857,7 +864,7 @@ QRRSBlock.RS_BLOCK_TABLE = [
   [34, 54, 24, 34, 55, 25],
   [20, 45, 15, 61, 46, 16],
 ];
-QRRSBlock.getRSBlocks = function (typeNumber, errorCorrectLevel) {
+QRRSBlock.getRSBlocks = function (typeNumber: number, errorCorrectLevel: string) {
   const rsBlock = QRRSBlock.getRsBlockTable(typeNumber, errorCorrectLevel);
   if (rsBlock == undefined) {
     throw new Error("bad rs block @ typeNumber:" + typeNumber + "/errorCorrectLevel:" + errorCorrectLevel);
@@ -874,7 +881,7 @@ QRRSBlock.getRSBlocks = function (typeNumber, errorCorrectLevel) {
   }
   return list;
 };
-QRRSBlock.getRsBlockTable = function (typeNumber, errorCorrectLevel) {
+QRRSBlock.getRsBlockTable = function (typeNumber: number, errorCorrectLevel: any) {
   switch (errorCorrectLevel) {
     case QRErrorCorrectLevel.L:
       return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
@@ -893,11 +900,11 @@ function QRBitBuffer() {
   this.length = 0;
 }
 QRBitBuffer.prototype = {
-  get: function (index) {
+  get: function (index: number) {
     const bufIndex = Math.floor(index / 8);
     return ((this.buffer[bufIndex] >>> (7 - (index % 8))) & 1) == 1;
   },
-  put: function (num, length) {
+  put: function (num: number, length: number) {
     for (let i = 0; i < length; i++) {
       this.putBit(((num >>> (length - i - 1)) & 1) == 1);
     }
@@ -905,7 +912,7 @@ QRBitBuffer.prototype = {
   getLengthInBits: function () {
     return this.length;
   },
-  putBit: function (bit) {
+  putBit: function (bit: any) {
     const bufIndex = Math.floor(this.length / 8);
     if (this.buffer.length <= bufIndex) {
       this.buffer.push(0);
@@ -962,9 +969,7 @@ const QRCodeLimitLength = [
 //---------------------------------------------------------------QR Code Object-----------------------------------------------------------------
 
 /** Constructor */
-function QRCode(options) {
-  const instance = this;
-
+function QRCode(options: { [x: string]: any; content?: string }) {
   //Default options
   this.options = {
     padding: 4,
@@ -1007,7 +1012,7 @@ function QRCode(options) {
   }
 
   //Gets the error correction level
-  function _getErrorCorrectLevel(ecl) {
+  function _getErrorCorrectLevel(ecl: string) {
     switch (ecl) {
       case "L":
         return QRErrorCorrectLevel.L;
@@ -1027,7 +1032,7 @@ function QRCode(options) {
   }
 
   //Get type number
-  function _getTypeNumber(content, ecl) {
+  function _getTypeNumber(content: any, ecl: string) {
     const length = _getUTF8Length(content);
 
     let type = 1;
@@ -1074,11 +1079,11 @@ function QRCode(options) {
   }
 
   //Gets text length
-  function _getUTF8Length(content) {
+  function _getUTF8Length(content: string) {
     const result = encodeURI(content)
       .toString()
-      .replace(/\%[0-9a-fA-F]{2}/g, "a");
-    return result.length + (result.length != content ? 3 : 0);
+      .replace(/%[0-9a-fA-F]{2}/g, "a");
+    return result.length + (result.length == content.length ? 0 : 3);
   }
 
   //Generate QR Code matrix
@@ -1093,7 +1098,7 @@ function QRCode(options) {
 //----------------------------------------------------Drawing out the QR Code as an SVG image------------------------------------------------------------
 
 /** Generates QR Code as SVG image */
-QRCode.prototype.svg = function (opt) {
+QRCode.prototype.svg = function (opt: { container: any }) {
   if (typeof opt == "undefined") {
     opt = { container: "svg" };
   }
@@ -1105,9 +1110,6 @@ QRCode.prototype.svg = function (opt) {
   const width = options.width;
   const height = options.height;
   const length = modules.length;
-  const style = options.style;
-  const xsize = width / (length + 2 * options.padding);
-  const ysize = height / (length + 2 * options.padding);
 
   let rect =
     '<rect x="0" y="0" width="' +
@@ -1167,7 +1169,7 @@ QRCode.prototype.svg = function (opt) {
 };
 
 /*Returns an svg element in the right shape determined by the surrounding modules and the qr code style*/
-function getShape(x, y, modules, options) {
+function getShape(x: number, y: number, modules: string | any[], options: any) {
   //Get the surrounding modules matrix
   const mod_matrix: any = {};
   mod_matrix.topLeft = x != 0 && y != 0 && modules[x - 1][y - 1];
@@ -1204,7 +1206,7 @@ function getShape(x, y, modules, options) {
     case 3:
       return getShapeThree(x, y, options, modules, mod_matrix);
     case 4:
-      return getShapeFour(x, y, options, modules, mod_matrix);
+      return getShapeFour(x, y, options, modules);
     default:
       return getShapeZero(x, y, options, modules);
   }
@@ -1213,12 +1215,16 @@ function getShape(x, y, modules, options) {
 }
 
 //Returns an SVG element for a box with no surrounding boxes
-function getShapeZero(x, y, options, modules) {
+function getShapeZero(
+  x: number,
+  y: number,
+  options: { width: any; height: any; padding: number; style: any; color: string },
+  modules: string | any[]
+) {
   const EOL = "\r\n";
   const width = options.width;
   const height = options.height;
   const length = modules.length;
-  const style = options.style;
   const xsize = width / (length + 2 * options.padding);
   const ysize = height / (length + 2 * options.padding);
   const px = x * xsize + options.padding * xsize;
@@ -1292,12 +1298,17 @@ function getShapeZero(x, y, options, modules) {
 }
 
 //Returns an SVG element for a box with one surrounding box
-function getShapeOne(x, y, options, modules, mod_matrix) {
+function getShapeOne(
+  x: number,
+  y: number,
+  options: { width: any; height: any; padding: number; style: any; color: string },
+  modules: string | any[],
+  mod_matrix: { right: any; bottom: any; left: any }
+) {
   const EOL = "\r\n";
   const width = options.width;
   const height = options.height;
   const length = modules.length;
-  const style = options.style;
   const xsize = width / (length + 2 * options.padding);
   const ysize = height / (length + 2 * options.padding);
   const px = x * xsize + options.padding * xsize;
@@ -1387,12 +1398,26 @@ function getShapeOne(x, y, options, modules, mod_matrix) {
 }
 
 //Returns an SVG element for a box with two surrounding boxes
-function getShapeTwo(x, y, options, modules, mod_matrix) {
+function getShapeTwo(
+  x: number,
+  y: number,
+  options: { width: any; height: any; padding: number; style: any; color: string },
+  modules: string | any[],
+  mod_matrix: {
+    top: any;
+    bottom: any;
+    left: any;
+    right: any;
+    topLeft: any;
+    topRight: any;
+    bottomLeft: any;
+    bottomRight: any;
+  }
+) {
   const EOL = "\r\n";
   const width = options.width;
   const height = options.height;
   const length = modules.length;
-  const style = options.style;
   const xsize = width / (length + 2 * options.padding);
   const ysize = height / (length + 2 * options.padding);
   const px = x * xsize + options.padding * xsize;
@@ -1400,7 +1425,7 @@ function getShapeTwo(x, y, options, modules, mod_matrix) {
 
   //If in the middle of a straight line, return a 1b3b
   if ((mod_matrix.top && mod_matrix.bottom) || (mod_matrix.left && mod_matrix.right)) {
-    var orientation = mod_matrix.top && mod_matrix.bottom ? 0 : 90;
+    const orientation = mod_matrix.top && mod_matrix.bottom ? 0 : 90;
     switch (options.style) {
       case "square":
         return (
@@ -1472,7 +1497,7 @@ function getShapeTwo(x, y, options, modules, mod_matrix) {
 
   //If a diagonal is in between the two surrounding (module is on a corner), return a 2a1b1a
   if (mod_matrix.topLeft || mod_matrix.topRight || mod_matrix.bottomLeft || mod_matrix.bottomRight) {
-    var orientation = 0;
+    let orientation = 0;
     if (mod_matrix.top && mod_matrix.topRight && mod_matrix.right) {
       orientation = 90;
     } else if (mod_matrix.right && mod_matrix.bottomRight && mod_matrix.bottom) {
@@ -1551,7 +1576,7 @@ function getShapeTwo(x, y, options, modules, mod_matrix) {
   }
 
   //Else in the center of a right angle
-  var orientation = 0;
+  let orientation = 0;
   if (mod_matrix.top && mod_matrix.right) {
     orientation = 90;
   } else if (mod_matrix.right && mod_matrix.bottom) {
@@ -1630,12 +1655,17 @@ function getShapeTwo(x, y, options, modules, mod_matrix) {
 }
 
 //Returns an SVG element for a box with one surrounding box
-function getShapeThree(x, y, options, modules, mod_matrix) {
+function getShapeThree(
+  x: number,
+  y: number,
+  options: { width: any; height: any; padding: number; style: any; color: string },
+  modules: string | any[],
+  mod_matrix: { top: any; right: any; bottom: any; left: any }
+) {
   const EOL = "\r\n";
   const width = options.width;
   const height = options.height;
   const length = modules.length;
-  const style = options.style;
   const xsize = width / (length + 2 * options.padding);
   const ysize = height / (length + 2 * options.padding);
   const px = x * xsize + options.padding * xsize;
@@ -1715,12 +1745,16 @@ function getShapeThree(x, y, options, modules, mod_matrix) {
 }
 
 //Returns an SVG element for a box with one surrounding box
-function getShapeFour(x, y, options, modules, mod_matrix) {
+function getShapeFour(
+  x: number,
+  y: number,
+  options: { width: any; height: any; padding: number; style: any; color: string },
+  modules: string | any[]
+) {
   const EOL = "\r\n";
   const width = options.width;
   const height = options.height;
   const length = modules.length;
-  const style = options.style;
   const xsize = width / (length + 2 * options.padding);
   const ysize = height / (length + 2 * options.padding);
   const px = x * xsize + options.padding * xsize;

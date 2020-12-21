@@ -9,64 +9,71 @@ This is a Customisable QR Code Component for React Native Applications.
 */
 
 //-----------------------------Imports-----------------------------------
-import React, { PureComponent } from "react";
-import { View, Image } from "react-native";
-import PropTypes from "prop-types";
+import React from "react";
+import { View, Image, ImageSourcePropType } from "react-native";
 import { generateQRCode } from "./QRCodeGenerator";
 import { drawPiece } from "./styles";
 import Svg, { Rect, Defs, ClipPath, LinearGradient, Stop } from "react-native-svg";
 
-//-----------------------------Component---------------------------------
-export default class QRCode extends PureComponent {
-  public props: any;
-  public size: any;
-  //-----------------------Properties---------------------
-  static propTypes = {
-    content: PropTypes.string,
-    size: PropTypes.number,
-    padding: PropTypes.number,
-    color: PropTypes.string,
-    linearGradient: PropTypes.arrayOf(PropTypes.string),
-    gradientDirection: PropTypes.arrayOf(PropTypes.number),
-    backgroundColor: PropTypes.string,
-    innerEyeStyle: PropTypes.oneOf(["square", "circle", "diamond"]),
-    outerEyeStyle: PropTypes.oneOf(["square", "circle", "diamond"]),
-    codeStyle: PropTypes.oneOf(["square", "circle", "diamond", "dot", "ninja", "sharp"]),
-    logo: Image.propTypes.source,
-    backgroundImage: Image.propTypes.source,
-    logoSize: PropTypes.number,
-    ecl: PropTypes.oneOf(["L", "M", "Q", "H"]),
-  };
+const EyeStyle = {
+  square: "square",
+  circle: "circle",
+  diamond: "diamond",
+} as const;
+type EyeStyle = typeof EyeStyle[keyof typeof EyeStyle];
 
-  static defaultProps = {
-    content: "No Content",
-    size: 250,
-    padding: 1,
-    color: "black",
-    gradientDirection: [0, 0, 170, 0],
-    backgroundColor: "white",
-    codeStyle: "square",
-    outerEyeStyle: "square",
-    innerEyeStyle: "square",
-    logoSize: 100,
-    ecl: "H",
-  };
+const CodeStyle = {
+  square: "square",
+  circle: "circle",
+  diamond: "diamond",
+  dot: "dot",
+  ninja: "ninja",
+  sharp: "sharp",
+} as const;
+type CodeStyle = typeof CodeStyle[keyof typeof CodeStyle];
 
+const Ecl = {
+  L: "L",
+  M: "M",
+  Q: "Q",
+  H: "H",
+};
+type Ecl = typeof Ecl[keyof typeof Ecl];
+
+type propTypes = {
+  content: string;
+  size: number;
+  padding: number;
+  color: string;
+  linearGradient: string[];
+  gradientDirection: string[];
+  backgroundColor: string;
+  innerEyeStyle: EyeStyle;
+  outerEyeStyle: EyeStyle;
+  codeStyle: CodeStyle;
+  logo: ImageSourcePropType;
+  backgroundImage: ImageSourcePropType;
+  logoSize: number;
+  ecl: Ecl;
+};
+
+//-----------------------------FunctionComponent---------------------------------
+export default function QRCode(props: propTypes): JSX.Element {
   //-----------------------Methods-----------------------
 
   //Returns an array of SVG Elements that represent the pieces of the QR Code
-  getPieces() {
-    const qr = generateQRCode(this.props);
+  const getPieces = () => {
+    const qr = generateQRCode(props);
 
     const modules = qr.qrcode.modules;
 
-    const size = this.props.size;
+    const size = props.size;
     const length = modules.length;
-    const xsize = size / (length + 2 * this.props.padding);
-    const ysize = size / (length + 2 * this.props.padding);
-    const logoX = this.props.size / 2 - this.props.logoSize / 2;
-    const logoY = this.props.size / 2 - this.props.logoSize / 2;
-    const logoSize = this.props.logoSize;
+    const xsize = size / (length + 2 * props.padding);
+    const ysize = size / (length + 2 * props.padding);
+    const logoX = props.size / 2 - props.logoSize / 2;
+    const logoY = props.size / 2 - props.logoSize / 2;
+    const logoSize = props.logoSize;
 
     const pieces = [];
     const nonPieces = [];
@@ -75,44 +82,44 @@ export default class QRCode extends PureComponent {
     for (let y = 0; y < length; y++) {
       for (let x = 0; x < length; x++) {
         const module = modules[x][y];
-        const px = x * xsize + this.props.padding * xsize;
-        const py = y * ysize + this.props.padding * ysize;
+        const px = x * xsize + props.padding * xsize;
+        const py = y * ysize + props.padding * ysize;
 
         //TODO: Add function to compute if pieces overlap with circular logos (more complex. Must see if tl or br is inside the radius from the centre of the circle (pythagoras theorem?))
         const overlapsWithLogo =
-          (px > logoX && px < logoX + logoSize && py > logoY && py < logoY + logoSize) || //Piece's top left is inside the logo area
-          (px + xsize > logoX && px + xsize < logoX + logoSize && py + ysize > logoY && py + ysize < logoY + logoSize); //Piece's bottom right is inside the logo area
+          (px > logoX && px < logoX + logoSize && py > logoY && py < logoY + logoSize) || //Piece"s top left is inside the logo area
+          (px + xsize > logoX && px + xsize < logoX + logoSize && py + ysize > logoY && py + ysize < logoY + logoSize); //Piece"s bottom right is inside the logo area
 
-        if (!this.props.logo || (this.props.logo && !overlapsWithLogo)) {
+        if (!props.logo || (props.logo && !overlapsWithLogo)) {
           if (module) {
-            pieces.push(this.getPiece(x, y, modules));
+            pieces.push(getPiece(x, y, modules));
           } else {
-            nonPieces.push(this.getPiece(x, y, modules));
+            nonPieces.push(getPiece(x, y, modules));
           }
         }
       }
     }
 
-    if (this.props.backgroundImage) {
-      const { size } = this.props;
+    if (props.backgroundImage) {
+      const { size } = props;
       return (
         <View
           style={{
             backgroundColor: "white",
-            margin: this.props.padding * xsize,
+            margin: props.padding * xsize,
           }}
         >
           <Image
-            source={this.props.backgroundImage}
+            source={props.backgroundImage}
             style={{
               position: "absolute",
-              top: this.props.padding * ysize,
-              left: this.props.padding * xsize,
-              height: this.props.size - this.props.padding * 2 * ysize,
-              width: this.props.size - this.props.padding * 2 * xsize,
+              top: props.padding * ysize,
+              left: props.padding * xsize,
+              height: props.size - props.padding * 2 * ysize,
+              width: props.size - props.padding * 2 * xsize,
             }}
           />
-          {this.displayLogo()}
+          {displayLogo()}
           <Svg height={size} width={size} color="transparent">
             <Defs>
               <ClipPath id="clip">{nonPieces}</ClipPath>
@@ -121,8 +128,8 @@ export default class QRCode extends PureComponent {
           </Svg>
         </View>
       );
-    } else if (this.props.linearGradient) {
-      const { size, backgroundColor = "transparent" } = this.props;
+    } else if (props.linearGradient) {
+      const { size, backgroundColor = "transparent" } = props;
       return (
         <View>
           <Svg height={size} width={size} color={backgroundColor}>
@@ -130,39 +137,39 @@ export default class QRCode extends PureComponent {
               <ClipPath id="clip">{pieces}</ClipPath>
               <LinearGradient
                 id="grad"
-                x1={this.props.gradientDirection[0]}
-                y1={this.props.gradientDirection[1]}
-                x2={this.props.gradientDirection[2]}
-                y2={this.props.gradientDirection[3]}
+                x1={props.gradientDirection[0]}
+                y1={props.gradientDirection[1]}
+                x2={props.gradientDirection[2]}
+                y2={props.gradientDirection[3]}
               >
-                <Stop offset="0" stopColor={this.props.linearGradient[0]} stopOpacity="1" />
-                <Stop offset="1" stopColor={this.props.linearGradient[1]} stopOpacity="1" />
+                <Stop offset="0" stopColor={props.linearGradient[0]} stopOpacity="1" />
+                <Stop offset="1" stopColor={props.linearGradient[1]} stopOpacity="1" />
               </LinearGradient>
             </Defs>
             <Rect clipPath="url(#clip)" x={0} y={0} height="100%" width="100%" fill="url(#grad)" />
           </Svg>
-          {this.displayLogo()}
+          {displayLogo()}
         </View>
       );
     } else {
-      const { size, backgroundColor = "transparent" } = this.props;
+      const { size, backgroundColor = "transparent" } = props;
       return (
         <View>
           <Svg height={size} width={size} color={backgroundColor}>
             <Defs>
               <ClipPath id="clip">{pieces}</ClipPath>
             </Defs>
-            <Rect clipPath="url(#clip)" x={0} y={0} height="100%" width="100%" fill={this.props.color} />
+            <Rect clipPath="url(#clip)" x={0} y={0} height="100%" width="100%" fill={props.color} />
           </Svg>
-          {this.displayLogo()}
+          {displayLogo()}
         </View>
       );
     }
-  }
+  };
 
   //Renders the logo on top of the QR Code if there is one
-  displayLogo() {
-    const { logo, size, logoSize } = this.props;
+  const displayLogo = (): JSX.Element => {
+    const { logo, size, logoSize } = props;
 
     if (logo) {
       return (
@@ -180,17 +187,17 @@ export default class QRCode extends PureComponent {
     } else {
       return <View />;
     }
-  }
+  };
 
   //Returns an SVG Element that represents the piece of the QR code at modules[x][y]
-  getPiece(x, y, modules) {
+  const getPiece = (x, y, modules): JSX.Element => {
     // Find out which piece type it is
-    const pieceProps = this.getPieceProperties(x, y, modules);
-    return drawPiece(x, y, modules, pieceProps, this.props);
-  }
+    const pieceProps = getPieceProperties(x, y, modules);
+    return drawPiece(x, y, modules, pieceProps, props);
+  };
 
   // Returns an object with orientation and pieceType representation of the piece type. (See https://github.com/mpaolino/qrlib/tree/master/qrlib/static)
-  getPieceProperties(x, y, modules) {
+  const getPieceProperties = (x, y, modules): JSX.Element => {
     const mod_matrix: any = {};
     mod_matrix.topLeft = x != 0 && y != 0 && modules[x - 1][y - 1];
     mod_matrix.top = y != 0 && modules[x][y - 1];
@@ -217,13 +224,12 @@ export default class QRCode extends PureComponent {
     }
 
     const pieceProperties: any = {};
-    var orientation = 0;
-
     //Determine what the piece properties are from its surrounding pieces.
     //  (surroundingCount holds the number of pieces above or to the side of this piece)
     //  (See https://github.com/mpaolino/qrlib/tree/master/qrlib/static)
     switch (surroundingCount) {
-      case 0:
+      case 0: {
+        let orientation = 0;
         pieceProperties.pieceType = "1a";
         if (mod_matrix.right) {
           orientation = 90;
@@ -234,18 +240,18 @@ export default class QRCode extends PureComponent {
         }
         pieceProperties.orientation = orientation;
         return pieceProperties;
+      }
       case 1:
         pieceProperties.pieceType = "2b";
         pieceProperties.orientation = 0;
         return pieceProperties;
       case 2:
         if ((mod_matrix.top && mod_matrix.bottom) || (mod_matrix.left && mod_matrix.right)) {
-          var orientation = mod_matrix.top && mod_matrix.bottom ? 0 : 90;
+          const orientation = mod_matrix.top && mod_matrix.bottom ? 0 : 90;
           pieceProperties.pieceType = "1b3b";
           pieceProperties.orientation = orientation;
           return pieceProperties;
         } else {
-          var orientation = 0;
           if (mod_matrix.top && mod_matrix.right) {
             pieceProperties.orientation = 90;
             pieceProperties.pieceType = mod_matrix.topRight ? "2a1b1a" : "2a1b";
@@ -263,9 +269,9 @@ export default class QRCode extends PureComponent {
             return pieceProperties;
           }
         }
-      case 3:
+      case 3: {
+        let orientation = 0;
         pieceProperties.pieceType = "2a1b2c";
-        var orientation = 0;
         if (mod_matrix.top && mod_matrix.right && mod_matrix.bottom) {
           orientation = 90;
         } else if (mod_matrix.right && mod_matrix.bottom && mod_matrix.left) {
@@ -275,16 +281,29 @@ export default class QRCode extends PureComponent {
         }
         pieceProperties.orientation = orientation;
         return pieceProperties;
+      }
       case 4:
         pieceProperties.pieceType = "2a1b2c3b";
         pieceProperties.orientation = 0;
         return pieceProperties;
     }
-  }
+  };
 
   //---------------------Rendering-----------------------
-
-  render() {
-    return this.getPieces();
-  }
+  return getPieces();
 }
+
+//-----------------------DefaultProperties---------------------
+QRCode.defaultProps = {
+  content: "No Content",
+  size: 250,
+  padding: 1,
+  color: "black",
+  gradientDirection: [0, 0, 170, 0],
+  backgroundColor: "white",
+  codeStyle: "square",
+  outerEyeStyle: "square",
+  innerEyeStyle: "square",
+  logoSize: 100,
+  ecl: "H",
+};
